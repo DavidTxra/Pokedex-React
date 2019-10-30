@@ -4,9 +4,11 @@ import './List.css';
 class List extends Component {
 
     state = {
-        data: [],  
+        data: [],
+        value: '', 
+        filterData: [] 
     };
-    
+
     async componentDidMount() 
     {
         try {
@@ -14,7 +16,7 @@ class List extends Component {
             for (let i = 1; i <= 151; i++) {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
                 const data = await res.json();
-                details.push(data.name)
+                details.push(data)
                this.setState({ data: details });
             }
         } catch (err) {
@@ -23,21 +25,46 @@ class List extends Component {
         }
     }
 
+    handleChange = e => {
+        this.setState({
+          filterData: this.state.data
+        });
+      };
+    
+      filterList = e => {
+        const updatedList = this.state.data.filter(item => {
+          return (
+            item.name.toLowerCase().search(e.target.value.toLowerCase()) !== -1
+          );
+        });
+        this.setState({ filterData: updatedList });
+      };
+
   render() 
   {
+
+    const searchBox = (
+        <input
+          type="text"
+          onClick={this.handleChange}
+          onChange={this.filterList}
+          id="search"
+        />
+    );
+
+    const selectBox = this.state.filterData.map((option,i) => (
+        <div key={i}>
+            <img src={`/img-pokemon/${option.id}.png`} alt="pokemon"/>
+            <h3>{option.name}</h3>
+            <hr></hr>
+        </div>
+    ));
 
       return (
         <div>
             <ul>
-            { 
-              this.state.data.map((item, i) => {
-                return <div key={i}>
-                    <img src={`/img-pokemon/${i+1}.png`} alt="pokemon"/>
-                    <h3>{item}</h3>
-                    <hr></hr>
-                </div>
-              })
-            }
+            {searchBox}
+            {selectBox && <ul>{selectBox}</ul>}
             </ul>
         </div>
       );  
