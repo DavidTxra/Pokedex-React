@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
 
 import './List.css';
 import Details from './Details.js';
+import Loader from '../Loader.js';
 
 class List extends Component {
 
@@ -13,11 +14,13 @@ class List extends Component {
     state = {
         data: [],
         value: '', 
-        filterData: [] 
+        filterData: [],
+        isLoading : false, 
     };
 
     async componentDidMount() 
     {
+      this.setState({isLoading: true})
         try {
             let details = [];
             for (let i = 1; i <= 151; i++) {
@@ -25,9 +28,11 @@ class List extends Component {
                 const data = await res.json();
                 details.push(data)
                this.setState({ data: details });
+               this.setState({isLoading: false})
             }
         } catch (err) {
             console.log(err);
+            this.setState({isLoading: false})
             throw err;
         }
     }
@@ -93,11 +98,13 @@ class List extends Component {
         </div> 
     ));
 
+    const { isLoading } = this.state;
+
       return (
           <div>
             <p>Recherche :</p>
             {searchBox}
-            {selectBox && <div>{selectBox}</div>}
+            { isLoading ? <Loader></Loader> : selectBox && <div>{selectBox}</div>}
           </div>
       );  
   }
